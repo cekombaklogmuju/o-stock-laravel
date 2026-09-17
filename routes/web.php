@@ -10,7 +10,18 @@ use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\SupplierController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+
+// Serverless Database Migration & Seeding Helper
+Route::get('/init-db', function () {
+    try {
+        Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
+        return response("<h3>Database initialized and seeded successfully!</h3><pre>" . htmlspecialchars(Artisan::output()) . "</pre><br><a href='/login'>Ke Halaman Login &rarr;</a>");
+    } catch (\Throwable $e) {
+        return response("<h3>Migration failed:</h3><p>" . htmlspecialchars($e->getMessage()) . "</p><pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>", 500);
+    }
+});
 
 // Guest Authentication Routes
 Route::middleware('guest')->group(function () {
