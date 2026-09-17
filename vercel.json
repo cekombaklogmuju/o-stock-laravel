@@ -35,6 +35,8 @@
     "SESSION_DRIVER": "cookie",
     "LOG_CHANNEL": "stderr",
     "DB_CONNECTION": "sqlite",
-    "DB_DATABASE": "/tmp/database.sqlite"
+    "DB_DATABASE": "/tmp/database.sqlite",
+    "APP_MAINTENANCE_DRIVER": "file",
+    "APP_MAINTENANCE_STORE": "cache"
   }
 }

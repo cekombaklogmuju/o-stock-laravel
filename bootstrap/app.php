@@ -79,6 +79,12 @@ if ($isServerless || !is_writable($app->basePath('storage'))) {
     putenv("DB_DATABASE={$tmpDb}");
     $_ENV['DB_DATABASE'] = $tmpDb;
     $_SERVER['DB_DATABASE'] = $tmpDb;
+
+    // Direct maintenance mode contract to FileBasedMaintenanceMode to avoid Manager driver resolution issues
+    $app->singleton(
+        \Illuminate\Contracts\Foundation\MaintenanceMode::class,
+        \Illuminate\Foundation\FileBasedMaintenanceMode::class
+    );
 }
 
 return $app;
