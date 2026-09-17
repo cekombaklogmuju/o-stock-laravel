@@ -22,6 +22,7 @@ try {
     $storagePath = '/tmp/storage';
     $tmpDirs = [
         '/tmp/views',
+        '/tmp/cache',
         $storagePath,
         $storagePath . '/framework',
         $storagePath . '/framework/cache',
@@ -37,8 +38,40 @@ try {
         }
     }
 
-    putenv('VIEW_COMPILED_PATH=' . $storagePath . '/framework/views');
-    putenv('APP_STORAGE_PATH=' . $storagePath);
+    $envVars = [
+        'APP_STORAGE_PATH' => $storagePath,
+        'VIEW_COMPILED_PATH' => $storagePath . '/framework/views',
+        'APP_CONFIG_CACHE' => '/tmp/config.php',
+        'APP_EVENTS_CACHE' => '/tmp/events.php',
+        'APP_PACKAGES_CACHE' => '/tmp/packages.php',
+        'APP_ROUTES_CACHE' => '/tmp/routes.php',
+        'APP_SERVICES_CACHE' => '/tmp/services.php',
+        'DB_CONNECTION' => 'sqlite',
+        'DB_DATABASE' => '/tmp/database.sqlite',
+        'CACHE_STORE' => 'array',
+        'CACHE_DRIVER' => 'array',
+        'SESSION_DRIVER' => 'cookie',
+        'LOG_CHANNEL' => 'stderr',
+    ];
+
+    foreach ($envVars as $k => $v) {
+        putenv("{$k}={$v}");
+        $_ENV[$k] = $v;
+        $_SERVER[$k] = $v;
+    }
+
+    // Serverless SQLite database preparation
+    $tmpDb = '/tmp/database.sqlite';
+    $origDb = dirname(__DIR__) . '/database/database.sqlite';
+    if (!file_exists($tmpDb) || (file_exists($origDb) && filemtime($origDb) > filemtime($tmpDb))) {
+        if (file_exists($origDb)) {
+            @copy($origDb, $tmpDb);
+            @chmod($tmpDb, 0666);
+        } else {
+            @touch($tmpDb);
+            @chmod($tmpDb, 0666);
+        }
+    }
 
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
@@ -46,6 +79,9 @@ try {
     echo "<h1>Laravel Boot Exception on Vercel</h1>";
     echo "<p><strong>Message:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
     echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . " on line " . $e->getLine() . "</p>";
+    if ($prev = $e->getPrevious()) {
+        echo "<p><strong>Previous Exception:</strong> " . htmlspecialchars($prev->getMessage()) . " in " . htmlspecialchars($prev->getFile()) . ":" . $prev->getLine() . "</p>";
+    }
     echo "<h2>Stack Trace:</h2>";
     echo "<pre style='background:#f4f4f4;padding:15px;border:1px solid #ccc;font-size:12px;overflow:auto;'>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
 }
