@@ -2,60 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BranchRequest;
-use App\Models\Kantor;
-use App\Models\Penjualan;
+use App\Models\BarangKeluar;
+use App\Models\BarangKeluarItem;
+use App\Models\BarangMasuk;
+use App\Models\BarangMasukItem;
+use App\Models\KartuStok;
 use App\Models\Produk;
+use App\Models\StockOpname;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $activeBranchId = session('active_branch_id');
+        // 1. Warehouse Overview Metrics
+        $totalSku = Produk::count();
+        $totalFisikStok = Produk::sum('stok');
 
-        $totalProduk = Produk::count();
-        $lowStockQuery = Produk::where('stok', '<=', 10)->where('status', 'aktif');
+        $lowStockQuery = Produk::with(['kategori'])
+            ->whereColumn('stok', '<=', 'stok_minimum')
+            ->where('status', 'aktif')
+            ->orderBy('stok', 'asc');
+        
         $lowStockCount = $lowStockQuery->count();
-        $lowStockItems = $lowStockQuery->limit(5)->get();
+        $lowStockItems = $lowStockQuery->limit(6)->get();
 
-        $totalCabang = Kantor::count();
+        // 2. Today's Warehouse Activities
+        $today = today()->toDateString();
 
-        // Penjualan query scoped by branch if active
-        $penjualanQuery = Penjualan::with(['cabang', 'konsumen', 'salesman'])->latest('tanggal');
-        if ($activeBranchId) {
-            $penjualanQuery->where('id_cabang', $activeBranchId);
-        }
+        $barangMasukTodayCount = BarangMasuk::whereDate('tanggal', $today)->count();
+        $barangMasukQtyToday = BarangMasukItem::whereHas('barangMasuk', function ($q) use ($today) {
+            $q->whereDate('tanggal', $today);
+        })->sum('jumlah');
 
-        $todaySalesQuery = Penjualan::whereDate('tanggal', today());
-        if ($activeBranchId) {
-            $todaySalesQuery->where('id_cabang', $activeBranchId);
-        }
-        $todaySalesTotal = $todaySalesQuery->sum('total_harga');
-        $todaySalesCount = $todaySalesQuery->count();
+        $barangKeluarTodayCount = BarangKeluar::whereDate('tanggal', $today)->count();
+        $barangKeluarQtyToday = BarangKeluarItem::whereHas('barangKeluar', function ($q) use ($today) {
+            $q->whereDate('tanggal', $today);
+        })->sum('jumlah');
 
-        // Branch Requests
-        $requestQuery = BranchRequest::with(['cabangPeminta', 'userPeminta'])->latest();
-        if ($user->role === 'cabang' && $user->id_cabang) {
-            $requestQuery->where('id_cabang_peminta', $user->id_cabang);
-        }
-        $pendingRequestsCount = (clone $requestQuery)->where('status', 'pending')->count();
-        $recentRequests = $requestQuery->limit(5)->get();
+        $totalOpnameCount = StockOpname::count();
+        $lastOpname = StockOpname::with('creator')->latest('tanggal')->latest('id')->first();
 
-        $recentSales = $penjualanQuery->limit(5)->get();
+        // 3. Recent Transactions & Ledger Audits
+        $recentMasuk = BarangMasuk::with(['supplier', 'items.produk'])->latest('tanggal')->latest('id')->limit(5)->get();
+        $recentKeluar = BarangKeluar::with(['items.produk'])->latest('tanggal')->latest('id')->limit(5)->get();
+        $recentMovements = KartuStok::with(['produk'])->latest('tanggal')->latest('id')->limit(8)->get();
 
         return view('dashboard.index', compact(
-            'totalProduk',
+            'totalSku',
+            'totalFisikStok',
             'lowStockCount',
             'lowStockItems',
-            'totalCabang',
-            'todaySalesTotal',
-            'todaySalesCount',
-            'pendingRequestsCount',
-            'recentRequests',
-            'recentSales'
+            'barangMasukTodayCount',
+            'barangMasukQtyToday',
+            'barangKeluarTodayCount',
+            'barangKeluarQtyToday',
+            'totalOpnameCount',
+            'lastOpname',
+            'recentMasuk',
+            'recentKeluar',
+            'recentMovements'
         ));
     }
 }

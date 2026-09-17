@@ -12,62 +12,77 @@ class KartuStokController extends Controller
     public function index(Request $request)
     {
         $produkId = $request->input('id_produk');
-        $cabangId = $request->input('id_cabang') ?? session('active_branch_id');
+        $search = $request->input('search');
+        $tipe = $request->input('tipe');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = KartuStok::with(['produk', 'cabang']);
+        $query = KartuStok::with(['produk.kategori'])
+            ->when($produkId, function ($q) use ($produkId) {
+                $q->where('id_produk', $produkId);
+            })
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('no_bukti', 'like', "%{$search}%")
+                        ->orWhere('keterangan', 'like', "%{$search}%")
+                        ->orWhereHas('produk', function ($p) use ($search) {
+                            $p->where('nama', 'like', "%{$search}%")
+                              ->orWhere('kode_produk', 'like', "%{$search}%")
+                              ->orWhere('barcode', 'like', "%{$search}%")
+                              ->orWhere('lokasi_rak', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->when($tipe === 'masuk', function ($q) {
+                $q->where('stok_masuk', '>', 0);
+            })
+            ->when($tipe === 'keluar', function ($q) {
+                $q->where('stok_keluar', '>', 0);
+            })
+            ->when($startDate, function ($q) use ($startDate) {
+                $q->whereDate('tanggal', '>=', $startDate);
+            })
+            ->when($endDate, function ($q) use ($endDate) {
+                $q->whereDate('tanggal', '<=', $endDate);
+            })
+            ->latest('tanggal')
+            ->latest('id');
 
-        if ($cabangId) {
-            $query->where('id_cabang', $cabangId);
-        }
+        $records = $query->paginate(20)->withQueryString();
+        $produks = Produk::where('status', 'aktif')->orderBy('nama')->get();
 
-        if ($produkId) {
-            $query->where('id_produk', $produkId);
-        }
-
-        if ($startDate) {
-            $query->whereDate('tanggal', '>=', $startDate);
-        }
-
-        if ($endDate) {
-            $query->whereDate('tanggal', '<=', $endDate);
-        }
-
-        $records = $query->latest('tanggal')->latest('id')->paginate(20)->withQueryString();
-
-        $kantors = Kantor::all();
-        $produks = Produk::all();
-
-        return view('kartu_stok.index', compact('records', 'kantors', 'produks', 'produkId', 'cabangId', 'startDate', 'endDate'));
+        return view('kartu_stok.index', compact('records', 'produks', 'produkId', 'search', 'tipe', 'startDate', 'endDate'));
     }
 
     public function print(Request $request)
     {
         $produkId = $request->input('id_produk');
-        $cabangId = $request->input('id_cabang') ?? session('active_branch_id');
+        $tipe = $request->input('tipe');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = KartuStok::with(['produk', 'cabang']);
+        $query = KartuStok::with(['produk'])
+            ->when($produkId, function ($q) use ($produkId) {
+                $q->where('id_produk', $produkId);
+            })
+            ->when($tipe === 'masuk', function ($q) {
+                $q->where('stok_masuk', '>', 0);
+            })
+            ->when($tipe === 'keluar', function ($q) {
+                $q->where('stok_keluar', '>', 0);
+            })
+            ->when($startDate, function ($q) use ($startDate) {
+                $q->whereDate('tanggal', '>=', $startDate);
+            })
+            ->when($endDate, function ($q) use ($endDate) {
+                $q->whereDate('tanggal', '<=', $endDate);
+            })
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc');
 
-        if ($cabangId) {
-            $query->where('id_cabang', $cabangId);
-        }
-        if ($produkId) {
-            $query->where('id_produk', $produkId);
-        }
-        if ($startDate) {
-            $query->whereDate('tanggal', '>=', $startDate);
-        }
-        if ($endDate) {
-            $query->whereDate('tanggal', '<=', $endDate);
-        }
-
-        $records = $query->orderBy('tanggal', 'asc')->orderBy('id', 'asc')->get();
+        $records = $query->get();
         $selectedProduk = $produkId ? Produk::find($produkId) : null;
-        $selectedCabang = $cabangId ? Kantor::find($cabangId) : null;
 
-        return view('kartu_stok.print', compact('records', 'selectedProduk', 'selectedCabang', 'startDate', 'endDate'));
+        return view('kartu_stok.print', compact('records', 'selectedProduk', 'startDate', 'endDate'));
     }
 }

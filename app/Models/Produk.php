@@ -17,10 +17,14 @@ class Produk extends Model
         'id_supplier',
         'kode_produk',
         'barcode',
+        'lokasi_rak',
+        'satuan',
         'nama',
         'slug',
         'harga_jual',
         'stok',
+        'stok_minimum',
+        'spesifikasi',
         'status',
     ];
 
@@ -39,18 +43,23 @@ class Produk extends Model
         return $this->hasMany(KartuStok::class, 'id_produk');
     }
 
-    public function alokasiItems()
+    public function barangMasukItems()
     {
-        return $this->hasMany(AlokasiItem::class, 'id_produk');
+        return $this->hasMany(BarangMasukItem::class, 'id_produk');
     }
 
-    public function penjualanItems()
+    public function barangKeluarItems()
     {
-        return $this->hasMany(PenjualanItem::class, 'id_produk');
+        return $this->hasMany(BarangKeluarItem::class, 'id_produk');
     }
 
-    public function branchRequestItems()
+    public function stockOpnameItems()
     {
-        return $this->hasMany(BranchRequestItem::class, 'id_produk');
+        return $this->hasMany(StockOpnameItem::class, 'id_produk');
+    }
+
+    public function isLowStock(): bool
+    {
+        return $this->stok <= ($this->stok_minimum ?? 5);
     }
 }

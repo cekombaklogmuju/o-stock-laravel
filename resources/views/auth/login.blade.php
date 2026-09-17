@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - O-Stock Multi-Branch Inventory</title>
+    <title>Login - O-Stock Warehouse Stock Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,17 +13,17 @@
         <!-- Logo & Title -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 text-white text-3xl shadow-lg shadow-indigo-600/30 mb-4">
-                <i class="fa-solid fa-boxes-stacked"></i>
+                <i class="fa-solid fa-warehouse"></i>
             </div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight">O-STOCK PROGRAM</h1>
-            <p class="text-sm text-slate-500 mt-1">Multi-Branch Inventory & Barcode POS System</p>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">O-STOCK WAREHOUSE</h1>
+            <p class="text-sm text-slate-500 mt-1">Sistem Manajemen Stok & Inventori Gudang</p>
         </div>
 
         <!-- Login Card -->
         <div class="bg-white rounded-2xl shadow-xl shadow-slate-200 border border-slate-200/80 p-8">
             <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
                 <i class="fa-solid fa-lock text-indigo-600"></i>
-                <span>Masuk ke Akun Anda</span>
+                <span>Masuk ke Sistem Gudang</span>
             </h2>
 
             @if(session('success'))
@@ -49,7 +49,7 @@
                             <i class="fa-regular fa-user"></i>
                         </span>
                         <input type="text" name="login" id="login" value="{{ old('login') }}" required autofocus
-                               placeholder="contoh: admin atau cabang_jkt"
+                               placeholder="contoh: admin atau operator"
                                class="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 outline-none transition">
                     </div>
                 </div>
@@ -75,33 +75,29 @@
 
                 <button type="submit"
                         class="w-full mt-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-bold rounded-lg shadow-md shadow-indigo-600/20 transition duration-150">
-                    Masuk ke Sistem
+                    Masuk ke Sistem Gudang
                 </button>
             </form>
 
             <!-- Quick Demo Credential Buttons -->
             <div class="mt-8 pt-6 border-t border-slate-100">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">Akun Demo (Klik untuk Isi Otomatis)</p>
-                <div class="grid grid-cols-2 gap-2">
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">Akun Demo Gudang (1-Klik)</p>
+                <div class="grid grid-cols-2 gap-3">
                     <button type="button" onclick="fillLogin('admin', 'password')"
-                            class="p-2 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-lg transition text-xs">
-                        <div class="font-bold text-slate-800">Administrator</div>
-                        <div class="text-[10px] text-slate-500">Global Admin</div>
+                            class="p-2.5 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-xl transition text-xs">
+                        <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-shield text-indigo-600"></i>
+                            <span>Manager Gudang</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">User: admin / password</div>
                     </button>
-                    <button type="button" onclick="fillLogin('cabang_jkt', 'password')"
-                            class="p-2 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-lg transition text-xs">
-                        <div class="font-bold text-slate-800">Cabang Jakarta</div>
-                        <div class="text-[10px] text-slate-500">Operator Cabang</div>
-                    </button>
-                    <button type="button" onclick="fillLogin('cabang_sby', 'password')"
-                            class="p-2 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-lg transition text-xs">
-                        <div class="font-bold text-slate-800">Cabang Surabaya</div>
-                        <div class="text-[10px] text-slate-500">Operator Cabang</div>
-                    </button>
-                    <button type="button" onclick="fillLogin('sales_budi', 'password')"
-                            class="p-2 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-lg transition text-xs">
-                        <div class="font-bold text-slate-800">Salesman Budi</div>
-                        <div class="text-[10px] text-slate-500">Sales Lapangan</div>
+                    <button type="button" onclick="fillLogin('operator', 'password')"
+                            class="p-2.5 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-xl transition text-xs">
+                        <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-dolly text-emerald-600"></i>
+                            <span>Operator Gudang</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-0.5">User: operator / password</div>
                     </button>
                 </div>
             </div>

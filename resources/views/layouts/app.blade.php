@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'O-Stock') }} - @yield('title', 'Sistem Manajemen Stok')</title>
+    <title>{{ config('app.name', 'O-Stock') }} - @yield('title', 'Warehouse Stock Management')</title>
 
     <!-- Tailwind CSS & Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,11 +37,11 @@
         <div class="h-16 flex items-center justify-between px-6 bg-slate-950 border-b border-slate-800">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-600/30">
-                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <i class="fa-solid fa-warehouse"></i>
                 </div>
                 <div class="flex flex-col">
                     <span class="font-black text-white text-base tracking-wider uppercase">O-STOCK</span>
-                    <span class="text-[10px] text-slate-400 font-medium tracking-tight">Multi-Branch System</span>
+                    <span class="text-[10px] text-indigo-400 font-medium tracking-tight">Warehouse Management</span>
                 </div>
             </a>
             <button @click="sidebarOpen = false" class="text-slate-400 hover:text-white lg:hidden">
@@ -51,90 +51,69 @@
 
         <!-- Navigation Menu -->
         <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+            <!-- Utama -->
             <div>
                 <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Utama</p>
                 <nav class="space-y-1">
                     <a href="{{ route('dashboard') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('dashboard') || request()->routeIs('home') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                         <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                        <span>Dashboard</span>
+                        <span>Dashboard Gudang</span>
                     </a>
                 </nav>
             </div>
 
-            <!-- Penjualan & Kasir (Barcode Scanner) -->
+            <!-- Operasional Gudang -->
             <div>
-                <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Penjualan</p>
+                <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Operasional Gudang</p>
                 <nav class="space-y-1">
-                    <a href="{{ route('penjualan.create') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('penjualan.create') ? 'bg-emerald-600 text-white shadow-sm' : 'text-emerald-400 hover:bg-slate-800 hover:text-emerald-300' }}">
-                        <i class="fa-solid fa-barcode w-5 text-center"></i>
-                        <span>Kasir & Scan Barcode</span>
+                    <a href="{{ route('barang-masuk.index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('barang-masuk.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-truck-ramp-box w-5 text-center text-emerald-400"></i>
+                        <span>Barang Masuk (Receiving)</span>
                     </a>
-                    <a href="{{ route('penjualan.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('penjualan.index') || request()->routeIs('penjualan.show') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fa-solid fa-receipt w-5 text-center"></i>
-                        <span>Daftar Invoice</span>
+                    <a href="{{ route('barang-keluar.index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('barang-keluar.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-dolly w-5 text-center text-amber-400"></i>
+                        <span>Barang Keluar (Dispatch)</span>
                     </a>
-                </nav>
-            </div>
-
-            <!-- Inventori & Mutasi -->
-            <div>
-                <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Inventori</p>
-                <nav class="space-y-1">
-                    <a href="{{ route('alokasi.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('alokasi.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fa-solid fa-truck-ramp-box w-5 text-center"></i>
-                        <span>Alokasi Stok</span>
-                    </a>
-                    <a href="{{ route('branch_request.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('branch_request.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fa-solid fa-code-pull-request w-5 text-center"></i>
-                        <span>Permintaan Cabang</span>
+                    <a href="{{ route('stock-opname.index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('stock-opname.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-clipboard-check w-5 text-center text-cyan-400"></i>
+                        <span>Stock Opname (Audit)</span>
                     </a>
                     <a href="{{ route('kartu_stok.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('kartu_stok.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
-                        <span>Kartu Stok</span>
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('kartu_stok.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-book-open-reader w-5 text-center text-indigo-400"></i>
+                        <span>Buku Kartu Stok</span>
                     </a>
                 </nav>
             </div>
 
-            <!-- Master Data -->
+            <!-- Master Data Gudang & Rak -->
             <div>
-                <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Master Data</p>
+                <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Master & Lokasi</p>
                 <nav class="space-y-1">
                     <a href="{{ route('produk.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('produk.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fa-solid fa-box-open w-5 text-center"></i>
-                        <span>Produk & Barcode</span>
+                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('produk.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-boxes-stacked w-5 text-center"></i>
+                        <span>Data Barang & Rak</span>
                     </a>
                     <a href="{{ route('kategori.index') }}"
                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('kategori.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                         <i class="fa-solid fa-tags w-5 text-center"></i>
-                        <span>Kategori Produk</span>
+                        <span>Kategori Barang</span>
                     </a>
                     <a href="{{ route('supplier.index') }}"
                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('supplier.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                         <i class="fa-solid fa-truck-field w-5 text-center"></i>
                         <span>Supplier</span>
                     </a>
-                    <a href="{{ route('konsumen.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('konsumen.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fa-solid fa-users w-5 text-center"></i>
-                        <span>Konsumen / Pelanggan</span>
-                    </a>
-                    <a href="{{ route('salesman.index') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('salesman.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
-                        <i class="fa-solid fa-user-tie w-5 text-center"></i>
-                        <span>Salesman</span>
-                    </a>
                     @if(auth()->user()->isAdmin())
                     <a href="{{ route('kantor.index') }}"
                        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('kantor.*') ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                         <i class="fa-solid fa-building-circle-check w-5 text-center"></i>
-                        <span>Cabang / Kantor</span>
+                        <span>Lokasi Gudang</span>
                     </a>
                     @endif
                 </nav>
@@ -150,7 +129,7 @@
                 <div class="truncate">
                     <p class="text-sm font-medium text-white truncate">{{ auth()->user()->name }}</p>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider {{ auth()->user()->isAdmin() ? 'bg-purple-900 text-purple-200' : 'bg-blue-900 text-blue-200' }}">
-                        {{ auth()->user()->role }}
+                        {{ auth()->user()->role === 'admin' ? 'Warehouse Manager' : 'Warehouse Operator' }}
                     </span>
                 </div>
             </div>
@@ -173,37 +152,30 @@
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
 
-                <!-- Branch Context Indicator / Switcher -->
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:inline">Cabang Aktif:</span>
-                    @if(auth()->user()->isAdmin())
-                        <form action="{{ route('switch.branch') }}" method="POST" class="inline">
-                            @csrf
-                            <select name="branch_id" onchange="this.form.submit()"
-                                    class="text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-md px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
-                                <option value="all" {{ !session('active_branch_id') ? 'selected' : '' }}>Semua Cabang (Global)</option>
-                                @foreach($allBranches ?? [] as $b)
-                                    <option value="{{ $b->id }}" {{ session('active_branch_id') == $b->id ? 'selected' : '' }}>
-                                        {{ $b->nama }} ({{ $b->kode_cabang }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </form>
-                    @else
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                            <i class="fa-solid fa-location-dot"></i>
-                            {{ $currentBranch ? $currentBranch->nama : 'Cabang Utama' }}
-                        </span>
-                    @endif
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        <i class="fa-solid fa-warehouse text-indigo-500"></i>
+                        Gudang Utama (Central Warehouse)
+                    </span>
                 </div>
             </div>
 
             <!-- Topbar Quick Action -->
-            <div class="flex items-center gap-3">
-                <a href="{{ route('penjualan.create') }}"
-                   class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg shadow-sm shadow-emerald-600/20 transition">
-                    <i class="fa-solid fa-barcode"></i>
-                    <span class="hidden sm:inline">Kasir / Scan</span>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="{{ route('barang-masuk.create') }}"
+                   class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-sm transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Barang Masuk</span>
+                </a>
+                <a href="{{ route('barang-keluar.create') }}"
+                   class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-sm transition">
+                    <i class="fa-solid fa-minus"></i>
+                    <span>Barang Keluar</span>
+                </a>
+                <a href="{{ route('stock-opname.create') }}"
+                   class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-sm transition hidden md:inline-flex">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Opname</span>
                 </a>
             </div>
         </header>
@@ -243,7 +215,7 @@
 
         <!-- Footer -->
         <footer class="py-4 px-6 border-t border-slate-200 text-center text-xs text-slate-500 bg-white no-print">
-            &copy; {{ date('Y') }} O-Stock Laravel Serverless Multi-Branch System.
+            &copy; {{ date('Y') }} O-Stock Warehouse Management System.
         </footer>
     </div>
 

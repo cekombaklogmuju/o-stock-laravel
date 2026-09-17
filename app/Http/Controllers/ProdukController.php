@@ -14,31 +14,42 @@ class ProdukController extends Controller
     {
         $search = $request->input('search');
         $kategoriId = $request->input('kategori_id');
+        $lowStock = $request->input('low_stock');
+        $lokasiRak = $request->input('lokasi_rak');
 
         $produks = Produk::with(['kategori', 'supplier'])
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('nama', 'like', "%{$search}%")
                         ->orWhere('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%");
+                        ->orWhere('barcode', 'like', "%{$search}%")
+                        ->orWhere('lokasi_rak', 'like', "%{$search}%");
                 });
             })
             ->when($kategoriId, function ($q) use ($kategoriId) {
                 $q->where('id_kategori', $kategoriId);
             })
-            ->latest()
-            ->paginate(15);
+            ->when($lokasiRak, function ($q) use ($lokasiRak) {
+                $q->where('lokasi_rak', 'like', "%{$lokasiRak}%");
+            })
+            ->when($lowStock, function ($q) {
+                $q->whereColumn('stok', '<=', 'stok_minimum');
+            })
+            ->orderBy('lokasi_rak', 'asc')
+            ->latest('id')
+            ->paginate(15)
+            ->withQueryString();
 
-        $kategoris = KategoriProduk::all();
+        $kategoris = KategoriProduk::orderBy('nama')->get();
 
-        return view('produk.index', compact('produks', 'kategoris', 'search', 'kategoriId'));
+        return view('produk.index', compact('produks', 'kategoris', 'search', 'kategoriId', 'lowStock', 'lokasiRak'));
     }
 
     public function create()
     {
-        $kategoris = KategoriProduk::all();
-        $suppliers = Supplier::all();
-        $generatedCode = 'PRD-' . strtoupper(Str::random(6));
+        $kategoris = KategoriProduk::orderBy('nama')->get();
+        $suppliers = Supplier::orderBy('nama')->get();
+        $generatedCode = 'BRG-' . strtoupper(Str::random(5));
         $generatedBarcode = '899' . mt_rand(100000000, 999999999);
 
         return view('produk.create', compact('kategoris', 'suppliers', 'generatedCode', 'generatedBarcode'));
@@ -52,8 +63,12 @@ class ProdukController extends Controller
             'nama' => 'required|string|max:255',
             'id_kategori' => 'required|exists:kategori_produks,id',
             'id_supplier' => 'required|exists:suppliers,id',
+            'lokasi_rak' => 'nullable|string|max:100',
+            'satuan' => 'nullable|string|max:50',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
+            'stok_minimum' => 'nullable|integer|min:0',
+            'spesifikasi' => 'nullable|string',
             'status' => 'required|in:aktif,nonaktif',
         ]);
 
@@ -63,16 +78,19 @@ class ProdukController extends Controller
 
         $validated['slug'] = Str::slug($validated['nama']) . '-' . Str::lower($validated['kode_produk']);
         $validated['stok'] = $validated['stok'] ?? 0;
+        $validated['stok_minimum'] = $validated['stok_minimum'] ?? 5;
+        $validated['satuan'] = $validated['satuan'] ?? 'Pcs';
+        $validated['lokasi_rak'] = $validated['lokasi_rak'] ?? 'Gudang Utama';
 
-        Produk::create($validated);
+        $produk = Produk::create($validated);
 
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil ditambahkan.');
+        return redirect()->route('produk.index')->with('success', "Barang {$produk->nama} berhasil didaftarkan di {$produk->lokasi_rak}.");
     }
 
     public function edit(Produk $produk)
     {
-        $kategoris = KategoriProduk::all();
-        $suppliers = Supplier::all();
+        $kategoris = KategoriProduk::orderBy('nama')->get();
+        $suppliers = Supplier::orderBy('nama')->get();
 
         return view('produk.edit', compact('produk', 'kategoris', 'suppliers'));
     }
@@ -85,8 +103,12 @@ class ProdukController extends Controller
             'nama' => 'required|string|max:255',
             'id_kategori' => 'required|exists:kategori_produks,id',
             'id_supplier' => 'required|exists:suppliers,id',
+            'lokasi_rak' => 'nullable|string|max:100',
+            'satuan' => 'nullable|string|max:50',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
+            'stok_minimum' => 'nullable|integer|min:0',
+            'spesifikasi' => 'nullable|string',
             'status' => 'required|in:aktif,nonaktif',
         ]);
 
@@ -95,16 +117,19 @@ class ProdukController extends Controller
         }
 
         $validated['slug'] = Str::slug($validated['nama']) . '-' . Str::lower($validated['kode_produk']);
+        $validated['stok_minimum'] = $validated['stok_minimum'] ?? 5;
+        $validated['satuan'] = $validated['satuan'] ?? 'Pcs';
+        $validated['lokasi_rak'] = $validated['lokasi_rak'] ?? 'Gudang Utama';
 
         $produk->update($validated);
 
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui.');
+        return redirect()->route('produk.index')->with('success', "Data barang {$produk->nama} berhasil diperbarui.");
     }
 
     public function destroy(Produk $produk)
     {
         $produk->delete();
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus.');
+        return redirect()->route('produk.index')->with('success', 'Data barang berhasil dihapus dari inventori.');
     }
 
     public function printBarcode(Produk $produk)
