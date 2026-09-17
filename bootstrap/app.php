@@ -58,7 +58,9 @@ if ($isServerless) {
             @touch($tmpDb);
         }
     }
-    config(['database.connections.sqlite.database' => $tmpDb]);
+    putenv("DB_DATABASE={$tmpDb}");
+    $_ENV['DB_DATABASE'] = $tmpDb;
+    $_SERVER['DB_DATABASE'] = $tmpDb;
 }
 
 return $app;
