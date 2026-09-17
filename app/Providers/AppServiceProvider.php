@@ -41,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
                 }
                 Config::set('database.connections.sqlite.database', $dbPath);
             }
+
+            \Illuminate\Support\Facades\URL::forceScheme('https');
         }
     }
 }
