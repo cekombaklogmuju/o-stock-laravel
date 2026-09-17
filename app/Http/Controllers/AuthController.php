@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kantor;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -15,6 +17,53 @@ class AuthController extends Controller
         }
 
         return view('auth.login');
+    }
+
+    public function showRegister()
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('auth.register');
+    }
+
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|alpha_dash|max:50|unique:users,username',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'role' => 'required|string|in:admin,cabang',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'username.required' => 'Username gudang wajib diisi.',
+            'username.unique' => 'Username tersebut sudah terdaftar.',
+            'username.alpha_dash' => 'Username hanya boleh berisi huruf, angka, strip, dan garis bawah.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email tersebut sudah terdaftar.',
+            'role.required' => 'Peran gudang wajib dipilih.',
+            'role.in' => 'Peran yang dipilih tidak valid.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'username' => strtolower($validated['username']),
+            'email' => strtolower($validated['email']),
+            'role' => $validated['role'],
+            'password' => Hash::make($validated['password']),
+            'status' => 'aktif',
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di O-Stock Warehouse, ' . $user->name . '.');
     }
 
     public function login(Request $request)

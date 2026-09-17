@@ -78,37 +78,15 @@
                     Masuk ke Sistem Gudang
                 </button>
             </form>
-
-            <!-- Quick Demo Credential Buttons -->
-            <div class="mt-8 pt-6 border-t border-slate-100">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">Akun Demo Gudang (1-Klik)</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <button type="button" onclick="fillLogin('admin', 'password')"
-                            class="p-2.5 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-xl transition text-xs">
-                        <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-shield text-indigo-600"></i>
-                            <span>Manager Gudang</span>
-                        </div>
-                        <div class="text-[10px] text-slate-500 mt-0.5">User: admin / password</div>
-                    </button>
-                    <button type="button" onclick="fillLogin('operator', 'password')"
-                            class="p-2.5 text-left bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 rounded-xl transition text-xs">
-                        <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                            <i class="fa-solid fa-dolly text-emerald-600"></i>
-                            <span>Operator Gudang</span>
-                        </div>
-                        <div class="text-[10px] text-slate-500 mt-0.5">User: operator / password</div>
-                    </button>
-                </div>
+            <div class="mt-6 pt-6 border-t border-slate-100 text-center">
+                <p class="text-xs text-slate-500 mb-3">Belum memiliki akun gudang?</p>
+                <a href="{{ route('register') }}"
+                   class="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-indigo-700 text-xs font-bold rounded-lg transition duration-150">
+                    <i class="fa-solid fa-user-plus text-indigo-600"></i>
+                    <span>Buat Akun Baru</span>
+                </a>
             </div>
         </div>
     </div>
-
-    <script>
-        function fillLogin(username, password) {
-            document.getElementById('login').value = username;
-            document.getElementById('password').value = password;
-        }
-    </script>
 </body>
 </html>
