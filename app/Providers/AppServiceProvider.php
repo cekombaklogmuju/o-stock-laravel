@@ -42,6 +42,11 @@ class AppServiceProvider extends ServiceProvider
                 Config::set('database.connections.sqlite.database', $dbPath);
             }
 
+            // Ensure session settings cannot expire immediately on Vercel
+            Config::set('session.driver', 'cookie');
+            Config::set('session.lifetime', 120);
+            Config::set('session.expire_on_close', false);
+
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
     }
