@@ -1,59 +1,98 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# O-Stock Laravel Edition (Serverless Ready for Vercel)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Made with Laravel](https://img.shields.io/badge/Made%20with-Laravel%2012-FF2D20.svg?logo=laravel)](https://laravel.com)
+[![Vercel Serverless Ready](https://img.shields.io/badge/Deploy-Vercel%20Serverless-black.svg?logo=vercel)](https://vercel.com)
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue.svg?logo=php)](https://php.net)
 
-## About Laravel
+A modern, serverless-optimized re-implementation of the **o-stock** multi-branch inventory and sales management system. Built on **Laravel 12**, **Tailwind CSS**, and designed for deployment on **Vercel** serverless functions with zero read-only filesystem issues and integrated **hardware/camera barcode scanning**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Features & Capabilities
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Multi-Branch Architecture & Scoping
+* **Role-Based Access Control (RBAC)**: `admin`, `cabang`, and `salesman`.
+* **Global vs Local Branch Scoping**: Administrators can view global company numbers or toggle into any branch context; branch operators are strictly scoped to their assigned branch.
 
-## Learning Laravel
+### 2. Barcode Scanning System
+* **Dual-Mode Scanner Support**:
+  * **Hardware USB/Bluetooth Scanners (HID Wedge)**: Automatic listener captures rapid keystroke input without requiring focus on an input field.
+  * **In-Browser Camera Scanner**: Powered by HTML5 QR/Barcode reader (`html5-qrcode`), turning any smartphone or webcam into a warehouse barcode terminal.
+  * **Audio POS Feedback**: Built-in 1800Hz POS beep via Web Audio API.
+* **Printable Barcode Sheet**: Generate printable Code-128 barcode stickers (`/produk/{id}/barcode-print`) directly formatted for thermal or A4 label paper.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 3. Core Inventory & Business Workflows
+* **Master Data**: Cabang / Kantor, Kategori Produk, Supplier, Produk (dengan Barcode), Konsumen / Pelanggan, Salesman.
+* **Alokasi Stok**: Pengiriman dan distribusi stok dari kantor pusat ke cabang tujuan.
+* **Permintaan Mutasi Cabang (Branch Requests)**: Cabang mengajukan permintaan penambahan stok dengan level prioritas (`normal`, `urgent`, `critical`), disetujui atau disesuaikan oleh head office.
+* **Buku Kartu Stok (Stock Ledger)**: Pelacakan mutasi masuk, keluar, dan saldo akhir per produk dan cabang dengan filter tanggal dan fitur cetak laporan.
+* **Kasir Penjualan & Cetak Invoice**: Kasir real-time dengan pemindaian barcode, kalkulasi diskon, verifikasi stok, dan pencetakan faktur/struk standar.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 4. Serverless Vercel Adaptation
+* **Stateless Lambda Runtime**: Configured via `vercel.json` with community `@vercel/php` / `vercel-php@0.7.x`.
+* **Ephemeral `/tmp` Storage Redirection**: Automatically writes compiled Blade views, sessions, cache, and logs to `/tmp` on cold start to prevent read-only filesystem errors.
+* **Cloud Database Compatible**: Tested and ready for Neon, Supabase, Railway, or PlanetScale.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🚀 Quick Start (Local Development)
 
-### Premium Partners
+### 1. Requirements
+* PHP 8.2 or later (with `pdo_sqlite` and `pdo_mysql` extensions enabled)
+* Composer 2.x
+* XAMPP / Local Web Server
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 2. Installation
+```bash
+# Clone or navigate to the repository
+cd C:\xampp\htdocs\o-stock-laravel
 
-## Contributing
+# Install composer dependencies (if needed)
+composer install
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Copy environment file
+cp .env.example .env
 
-## Code of Conduct
+# Generate application key
+php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Run database migrations and seed default data
+php artisan migrate:fresh --seed
 
-## Security Vulnerabilities
+# Start the local development server
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Aplikasi sekarang dapat diakses di: **`http://127.0.0.1:8000`** (atau via XAMPP Apache di `http://localhost/o-stock-laravel/public`).
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🔑 Default User Accounts (Seeder)
+
+| Peran (Role) | Username | Password | Akses Cabang |
+|---|---|---|---|
+| **Super Administrator** | `admin` | `password` | Semua Cabang (Global Switcher) |
+| **Operator Cabang** | `cabang_jkt` | `password` | Cabang Jakarta Barat |
+| **Operator Cabang** | `cabang_sby` | `password` | Cabang Surabaya |
+| **Sales Lapangan** | `sales_budi` | `password` | Cabang Jakarta (Sales) |
+
+*Terdapat tombol pintas (quick-fill) di halaman login untuk mengisi kredensial demo ini dengan 1 klik.*
+
+---
+
+## 📦 Sample Barcode Codes for Testing
+
+Gunakan kode barcode berikut pada fitur **Kasir / Barcode Scan** (`/penjualan/create`):
+
+| Produk | Kode Produk | Barcode | Stok Awal | Harga |
+|---|---|---|---|---|
+| Laptop Business Core i5 | `PRD-EL-001` | `899100110011` | 20 | Rp 8.500.000 |
+| Wireless Optical Mouse | `PRD-EL-002` | `899100110028` | 100 | Rp 125.000 |
+| Mechanical Keyboard RGB | `PRD-EL-003` | `899100110035` | 50 | Rp 450.000 |
+| Kertas HVS A4 80gr | `PRD-ATK-001` | `899100110042` | 150 | Rp 58.000 |
+
+---
+
+## ☁️ Deployment ke Vercel
+
+Lihat panduan lengkap langkah-demi-langkah di file **[`VERCEL_DEPLOYMENT_GUIDE.md`](./VERCEL_DEPLOYMENT_GUIDE.md)**.
