@@ -47,6 +47,10 @@ class AppServiceProvider extends ServiceProvider
             Config::set('session.lifetime', 120);
             Config::set('session.expire_on_close', false);
 
+            // Ensure hashing rounds and rehash settings on Vercel
+            Config::set('hashing.bcrypt.rounds', 12);
+            Config::set('hashing.rehash_on_login', false);
+
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
     }
