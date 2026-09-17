@@ -34,7 +34,6 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|alpha_dash|max:50|unique:users,username',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'role' => 'required|string|in:admin,cabang',
             'password' => 'required|string|min:6|confirmed',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
@@ -44,18 +43,17 @@ class AuthController extends Controller
             'email.required' => 'Alamat email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email tersebut sudah terdaftar.',
-            'role.required' => 'Peran gudang wajib dipilih.',
-            'role.in' => 'Peran yang dipilih tidak valid.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
+        // Pendaftaran mandiri akun baru selalu diberikan peran 'cabang' (Operator Gudang dengan akses terbatas)
         $user = User::create([
             'name' => $validated['name'],
             'username' => strtolower($validated['username']),
             'email' => strtolower($validated['email']),
-            'role' => $validated['role'],
+            'role' => 'cabang',
             'password' => Hash::make($validated['password']),
             'status' => 'aktif',
         ]);
@@ -63,7 +61,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di O-Stock Warehouse, ' . $user->name . '.');
+        return redirect()->route('dashboard')->with('success', 'Akun Operator Gudang berhasil dibuat! Selamat datang di O-Stock Warehouse, ' . $user->name . '.');
     }
 
     public function login(Request $request)

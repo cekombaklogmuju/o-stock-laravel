@@ -74,16 +74,18 @@ class AuthTest extends TestCase
         $response = $this->get('/register');
         $response->assertStatus(200);
         $response->assertSee('Buat Akun Baru');
+        $response->assertSee('Operator Gudang');
+        $response->assertSee('Akses Terbatas');
+        $response->assertDontSee('Kepala Gudang (Admin)');
         $response->assertSee('Konfirmasi Password');
     }
 
-    public function test_guest_can_register_new_account(): void
+    public function test_guest_can_register_new_account_as_operator_gudang(): void
     {
         $response = $this->post('/register', [
             'name' => 'Budi Santoso',
             'username' => 'budi_gudang',
             'email' => 'budi@example.com',
-            'role' => 'cabang',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
         ]);
@@ -97,11 +99,34 @@ class AuthTest extends TestCase
         ]);
     }
 
+    public function test_registration_strictly_assigns_operator_role_even_if_admin_is_passed(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Hacker Admin',
+            'username' => 'fake_admin',
+            'email' => 'fake@example.com',
+            'role' => 'admin',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect('/dashboard');
+        $this->assertDatabaseHas('users', [
+            'username' => 'fake_admin',
+            'role' => 'cabang', // Guaranteed to be cabang (operator)
+        ]);
+
+        // Verified that this operator cannot access admin-only area
+        $user = User::where('username', 'fake_admin')->first();
+        $kantorResponse = $this->actingAs($user)->get('/kantor');
+        $kantorResponse->assertStatus(403);
+    }
+
     public function test_registration_requires_valid_data(): void
     {
         $response = $this->post('/register', []);
 
-        $response->assertSessionHasErrors(['name', 'username', 'email', 'role', 'password']);
+        $response->assertSessionHasErrors(['name', 'username', 'email', 'password']);
         $this->assertGuest();
     }
 
@@ -116,7 +141,6 @@ class AuthTest extends TestCase
             'name' => 'Budi Baru',
             'username' => 'budi_gudang',
             'email' => 'budi@example.com',
-            'role' => 'cabang',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
         ]);

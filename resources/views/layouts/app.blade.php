@@ -129,7 +129,7 @@
                 <div class="truncate">
                     <p class="text-sm font-medium text-white truncate">{{ auth()->user()->name }}</p>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider {{ auth()->user()->isAdmin() ? 'bg-purple-900 text-purple-200' : 'bg-blue-900 text-blue-200' }}">
-                        {{ auth()->user()->role === 'admin' ? 'Warehouse Manager' : 'Warehouse Operator' }}
+                        {{ auth()->user()->role === 'admin' ? 'Kepala Gudang (Admin)' : 'Operator Gudang (Terbatas)' }}
                     </span>
                 </div>
             </div>
